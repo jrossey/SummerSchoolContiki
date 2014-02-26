@@ -97,8 +97,8 @@ uart1_init(unsigned long ubr)
   transmitting = 0;
 
   /* XXX Clear pending interrupts before enable */
-  UCA1IE &= ~UCRXIFG;
-  UCA1IE &= ~UCTXIFG;
+  UCA1IFG &= ~UCRXIFG;
+  UCA1IFG &= ~UCTXIFG;
 
   UCA1CTL1 &= ~UCSWRST;                   /* Initialize USCI state machine **before** enabling interrupts */
   UCA1IE |= UCRXIE;                        /* Enable UCA1 RX interrupt */
@@ -109,7 +109,9 @@ ISR(USCI_A1, uart1_rx_interrupt)
   uint8_t c;
 
   ENERGEST_ON(ENERGEST_TYPE_IRQ);
-  if (UCA1IV == 2) {
+  // copy last three bits of the IV, as the __even_in_range macro would do...
+  uint8_t maskedIV = UCA1IV & 0x07;
+  if (maskedIV == 2) {
     if(UCA1STAT & UCRXERR) {
       c = UCA1RXBUF;   /* Clear error flags by forcing a dummy read. */
     } else {
