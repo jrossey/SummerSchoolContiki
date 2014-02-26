@@ -34,17 +34,29 @@
 #include "contiki.h"
 #include "sys/cc.h"
 
-#define HWCONF_PIN(name, port, bit)                                           \
-static CC_INLINE void name##_SELECT() {P##port##SEL &= ~(1 << bit);}          \
-static CC_INLINE void name##_SELECT_IO() {P##port##SEL &= ~(1 << bit);}       \
-static CC_INLINE void name##_SELECT_PM() {P##port##SEL |= 1 << bit;}          \
-static CC_INLINE void name##_SET() {P##port##OUT |= 1 << bit;}                \
-static CC_INLINE void name##_CLEAR() {P##port##OUT &= ~(1 << bit);}           \
-static CC_INLINE int  name##_READ() {return (P##port##IN & (1 << bit));}      \
-static CC_INLINE void name##_MAKE_OUTPUT() {P##port##DIR |= 1 << bit;}        \
-static CC_INLINE void name##_MAKE_INPUT() {P##port##DIR &= ~(1 << bit);}      \
-static CC_INLINE void name##_REN_ENABLE() {P##port##REN |= (1 << bit);}       \
-static CC_INLINE void name##_REN_DISABLE() {P##port##REN &= ~(1 << bit);}
+#if CONTIKI_TARGET_WISMOTE || CONTIKI_TARGET_RM090
+	#define HWCONF_PIN(name, port, bit)                                           \
+	static CC_INLINE void name##_SELECT() {P##port##SEL &= ~(1 << bit);}          \
+	static CC_INLINE void name##_SELECT_IO() {P##port##SEL &= ~(1 << bit);}       \
+	static CC_INLINE void name##_SELECT_PM() {P##port##SEL |= 1 << bit;}          \
+	static CC_INLINE void name##_SET() {P##port##OUT |= 1 << bit;}                \
+	static CC_INLINE void name##_CLEAR() {P##port##OUT &= ~(1 << bit);}           \
+	static CC_INLINE int  name##_READ() {return (P##port##IN & (1 << bit));}      \
+	static CC_INLINE void name##_MAKE_OUTPUT() {P##port##DIR |= 1 << bit;}        \
+	static CC_INLINE void name##_MAKE_INPUT() {P##port##DIR &= ~(1 << bit);}      \
+	static CC_INLINE void name##_REN_ENABLE() {P##port##REN |= (1 << bit);}       \
+	static CC_INLINE void name##_REN_DISABLE() {P##port##REN &= ~(1 << bit);}
+#else
+	#define HWCONF_PIN(name, port, bit)                                           \
+	static CC_INLINE void name##_SELECT() {P##port##SEL &= ~(1 << bit);}          \
+	static CC_INLINE void name##_SELECT_IO() {P##port##SEL &= ~(1 << bit);}       \
+	static CC_INLINE void name##_SELECT_PM() {P##port##SEL |= 1 << bit;}          \
+	static CC_INLINE void name##_SET() {P##port##OUT |= 1 << bit;}                \
+	static CC_INLINE void name##_CLEAR() {P##port##OUT &= ~(1 << bit);}           \
+	static CC_INLINE int  name##_READ() {return (P##port##IN & (1 << bit));}      \
+	static CC_INLINE void name##_MAKE_OUTPUT() {P##port##DIR |= 1 << bit;}        \
+	static CC_INLINE void name##_MAKE_INPUT() {P##port##DIR &= ~(1 << bit);}
+#endif
 
 #define HWCONF_IRQ(name, port, bit)                                           \
 static CC_INLINE void name##_ENABLE_IRQ() {P##port##IE |= 1 << bit;}          \
