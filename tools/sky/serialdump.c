@@ -4,8 +4,11 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define BAUDRATE B57600
 #define BAUDRATE_S "57600"
@@ -84,7 +87,7 @@ int main(int argc, char **argv)
 {
   struct termios options;
   fd_set mask, smask;
-  int fd;
+  int fd, hs;
   speed_t speed = BAUDRATE;
   char *speedname = BAUDRATE_S;
   char *device = MODEMDEVICE;
@@ -162,7 +165,8 @@ int main(int argc, char **argv)
   fprintf(stderr, "connecting to %s (%s)", device, speedname);
 
 #ifndef __APPLE__
-  fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_DIRECT | O_SYNC );
+  //fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_DIRECT | O_SYNC );
+  fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_SYNC);
 #else
   fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_SYNC );
 #endif
@@ -182,6 +186,13 @@ int main(int argc, char **argv)
     perror("could not get options");
     exit(-1);
   }
+
+  ioctl(fd,TIOCMGET,&hs);
+  hs &= ~ TIOCM_RTS;
+  ioctl(fd,TIOCMSET,&hs);
+  hs &= ~ TIOCM_DTR;
+  ioctl(fd,TIOCMSET,&hs);
+  sleep(1);
 /*   fprintf(stderr, "serial options set\n"); */
   cfsetispeed(&options, speed);
   cfsetospeed(&options, speed);
