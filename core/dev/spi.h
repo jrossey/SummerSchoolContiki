@@ -77,7 +77,7 @@ void spi_init(void);
 #define SPI_READ(data)   \
   do {                   \
     SPI_TXBUF = 0;       \
-    SPI_WAITFOREORx();   \
+    SPI_WAITFOREOTx();   \
     data = SPI_RXBUF;    \
   } while(0)
 
