@@ -175,6 +175,57 @@ int main(int argc, char **argv)
     perror(device);
     exit(-1);
   }
+  //fprintf(stderr, " [OK]\n");
+
+  if (fcntl(fd, F_SETFL, 0) < 0) {
+    perror("could not set fcntl");
+    exit(-1);
+  }
+
+  if (tcgetattr(fd, &options) < 0) {
+    perror("could not get options");
+    exit(-1);
+  }
+
+  ioctl(fd,TIOCMGET,&hs);
+  hs &= ~ TIOCM_RTS;
+  ioctl(fd,TIOCMSET,&hs);
+  hs &= ~ TIOCM_DTR;
+  ioctl(fd,TIOCMSET,&hs);
+  sleep(1);
+/*   fprintf(stderr, "serial options set\n"); */
+  cfsetispeed(&options, speed);
+  cfsetospeed(&options, speed);
+  /* Enable the receiver and set local mode */
+  options.c_cflag |= (CLOCAL | CREAD);
+  /* Mask the character size bits and turn off (odd) parity */
+  options.c_cflag &= ~(CSIZE|PARENB|PARODD);
+  /* Select 8 data bits */
+  options.c_cflag |= CS8;
+
+  /* Raw input */
+  options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+  /* Raw output */
+  options.c_oflag &= ~OPOST;
+
+  if (tcsetattr(fd, TCSANOW, &options) < 0) {
+    perror("could not set options");
+    exit(-1);
+  }
+
+  close(fd);
+
+#ifndef __APPLE__
+  //fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_DIRECT | O_SYNC );
+  fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_SYNC);
+#else
+  fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_SYNC );
+#endif
+  if (fd <0) {
+    fprintf(stderr, "\n");
+    perror(device);
+    exit(-1);
+  }
   fprintf(stderr, " [OK]\n");
 
   if (fcntl(fd, F_SETFL, 0) < 0) {
