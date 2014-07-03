@@ -34,10 +34,10 @@ CFLAGS+=-DENABLE_PRINTF
 endif
 
 # Busses
-CONTIKI_TARGET_SOURCEFILES += spi.c
+CONTIKI_TARGET_SOURCEFILES += spi.c i2c.c
 
 # Sensors
-CONTIKI_TARGET_SOURCEFILES += sensors.c button-sensor.c radio-sensor.c
+CONTIKI_TARGET_SOURCEFILES += sensors.c button-sensor.c radio-sensor.c sht21.c sht21-sensor.c
 
 # Radio
 CONTIKI_TARGET_SOURCEFILES += cc2520.c cc2520-arch.c
